@@ -5,6 +5,10 @@
   "version": "1.0.1",
   "author": "kumaomao",
   "publisher": "windsurf",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kumaomao/windsurf-login"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },

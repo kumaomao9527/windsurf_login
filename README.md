@@ -2,7 +2,7 @@
 
 一款功能强大的 VS Code 扩展，专为 Windsurf 用户设计，提供多账户管理、用量监控及环境配置重置等一站式解决方案。
 
-![界面预览](resources/preview.png)
+![功能展示](resources/acc87824-aa98-42bc-b2d6-4e9c3c7cafd0.png)
 
 ## 🚀 主要功能
 
