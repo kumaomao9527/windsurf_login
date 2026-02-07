@@ -1,0 +1,61 @@
+{
+  "name": "windsurf-login",
+  "displayName": "Windsurf Login",
+  "description": "A VS Code extension for Windsurf account login",
+  "version": "1.0.1",
+  "author": "kumaomao",
+  "publisher": "windsurf",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "windsurf-login.showLogin",
+        "title": "Windsurf: Login"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "windsurf-login",
+          "title": "Windsurf Login",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "windsurf-login": [
+        {
+          "type": "webview",
+          "id": "windsurf-login.loginView",
+          "name": "Login",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "sql.js": "1.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.x",
+    "@types/sql.js": "1.4.9",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.x",
+    "@typescript-eslint/parser": "^6.x",
+    "eslint": "^8.x",
+    "typescript": "^5.3.0"
+  }
+}
