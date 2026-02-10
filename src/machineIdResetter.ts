@@ -14,19 +14,28 @@ export class MachineIdResetter {
     }
 
     /**
+     * 获取 Windsurf 配置目录路径
+     */
+    private getWindsurfPath(): string {
+        const home = process.env.HOME || '';
+        if (process.platform === 'win32') {
+            return path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'Windsurf');
+        } else if (process.platform === 'darwin') {
+            return path.join(home, 'Library', 'Application Support', 'Windsurf');
+        } else {
+            // Linux
+            return path.join(home, '.config', 'Windsurf');
+        }
+    }
+
+    /**
      * 重置 Windsurf 机器码
      */
     public async resetMachineId(): Promise<{ success: boolean; error?: string; newMachineId?: string }> {
         try {
             this.logger.appendLine(`[${new Date().toLocaleTimeString()}] 开始重置机器码...`);
 
-            // 获取 Windsurf 配置目录
-            const appData = process.env.APPDATA || process.env.HOME;
-            if (!appData) {
-                throw new Error('无法获取 APPDATA 路径');
-            }
-
-            const windsurfPath = path.join(appData, 'Windsurf');
+            const windsurfPath = this.getWindsurfPath();
             if (!fs.existsSync(windsurfPath)) {
                 throw new Error(`Windsurf 目录不存在: ${windsurfPath}`);
             }
@@ -36,7 +45,7 @@ export class MachineIdResetter {
             this.logger.appendLine(`生成新机器码: ${newMachineId}`);
 
             // 定义需要更新的文件路径
-            const filesToUpdate = [
+            const filesToUpdate: { path: string; content: string; description: string }[] = [
                 {
                     path: path.join(windsurfPath, 'machineid'),
                     content: newMachineId,
@@ -53,6 +62,25 @@ export class MachineIdResetter {
                     description: 'globalStorage/machine-id'
                 }
             ];
+
+            // 尝试更新 storage.json 中的 telemetry.machineId
+            const storageJsonPath = path.join(windsurfPath, 'User', 'globalStorage', 'storage.json');
+            if (fs.existsSync(storageJsonPath)) {
+                try {
+                    const storage = JSON.parse(fs.readFileSync(storageJsonPath, 'utf-8'));
+                    if (storage['telemetry.machineId']) {
+                        storage['telemetry.machineId'] = newMachineId;
+                        filesToUpdate.push({
+                            path: storageJsonPath,
+                            content: JSON.stringify(storage, null, 2),
+                            description: 'User/globalStorage/storage.json'
+                        });
+                        this.logger.appendLine(`添加 storage.json 到更新队列`);
+                    }
+                } catch (e) {
+                    this.logger.appendLine(`解析 storage.json 失败: ${e}`);
+                }
+            }
 
             // 备份旧的机器码
             const backupDir = path.join(windsurfPath, 'machine-id-backups');
@@ -102,12 +130,8 @@ export class MachineIdResetter {
      */
     public getCurrentMachineId(): string | null {
         try {
-            const appData = process.env.APPDATA || process.env.HOME;
-            if (!appData) {
-                return null;
-            }
-
-            const machineIdPath = path.join(appData, 'Windsurf', 'machineid');
+            const windsurfPath = this.getWindsurfPath();
+            const machineIdPath = path.join(windsurfPath, 'machineid');
             if (fs.existsSync(machineIdPath)) {
                 return fs.readFileSync(machineIdPath, 'utf-8').trim();
             }
@@ -124,3 +148,4 @@ export class MachineIdResetter {
         this.logger.show();
     }
 }
+
